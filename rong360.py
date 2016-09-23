@@ -309,6 +309,7 @@ class Rong360():
                         if persons:
                             # 完善人员信息
                             persons['id'] = basicInfo['id']
+                            persons['platform_id'] = basicInfo['id']
                             # 保存人员信息
                             self.savePersonToSQLite(**persons)
                             print '平台%s共有%s个高管,全部成功保存' % (basicInfo['name'], len(persons))
