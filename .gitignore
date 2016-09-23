@@ -1,0 +1,5 @@
+.cache/
+*.pyc
+*.db
+.DS_Store
+.idea/

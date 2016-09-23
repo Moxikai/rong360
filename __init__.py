@@ -1,0 +1,1 @@
+from config import baseDir,htmlCacheFolder,errorInfoFolder
