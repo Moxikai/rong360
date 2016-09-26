@@ -39,14 +39,15 @@ class Platform(Base):
     assignmentOfDebt = Column(String(48))
     automaticBidding = Column(String(48))
     cashTime = Column(String(48))
-    persons = db.relationship('Person',backref='platform')
+    abstract = Column(Text)
+    persons = relationship('Person',backref='platform')
 
 class Person(Base):
     __tablename__='person'
 
     id = Column(String(48),primary_key=True)
     abstracts = Column(Text)
-    platform_id = Column(db.String(48),ForeignKey('platform.id'))
+    platform_id = Column(String(48),ForeignKey('platform.id'))
     
 class Product(Base):
     __tablename__ = 'product'

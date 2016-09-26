@@ -154,6 +154,7 @@ class Rong360():
                               'assignmentOfDebt':self.cleanBlank(basicData[11]),
                               'automaticBidding':self.cleanBlank(basicData[12]),
                               'cashTime':self.cleanBlank(basicData[13]),
+
                               'id':self.getSignName(self.cleanBlank(basicData[3]))
                               }
                 return detailData
@@ -173,7 +174,19 @@ class Rong360():
                 print '人员信息解析有误',e
                 return False
 
+    #解析平台简介
+    def parseDetailAbstract(self, content):
 
+        if content:
+            soup = BeautifulSoup(content, 'lxml')
+            try:
+                abstracts = soup.find_all('div', class_='loan-msg-con tab-con')[0].contents
+                abstracts = ''.join(str(item) for item in abstracts)
+
+                return {'abstract': unicode(abstracts, 'utf-8')}
+            except Exception as e:
+                print '平台简介信息解析有误!', e
+                return False
     #解析产品信息
     def parseProduct(self,content):
 
@@ -241,6 +254,7 @@ class Rong360():
                             assignmentOfDebt = kwargs['assignmentOfDebt'],
                             automaticBidding = kwargs['automaticBidding'],
                             cashTime = kwargs['cashTime'],
+                            abstract = kwargs['abstract']
                             )
         if not session.query(Platform).filter(Platform.id == kwargs['id']).first():
             session.add(platform)
@@ -253,7 +267,8 @@ class Rong360():
     def savePersonToSQLite(self,**kwargs):
 
         person = Person(id = kwargs['id'],
-                        abstracts = kwargs['abstracts'],)
+                        abstracts = kwargs['abstracts'],
+                        platform_id = kwargs['platform_id'])
 
         if not session.query(Person).filter(Person.id == kwargs['id']).first():
 
@@ -270,7 +285,8 @@ class Rong360():
                           name = kwargs['name'],
                           annualizedReturn = kwargs['annualizedReturn'],
                           cycle = kwargs['cycle'],
-                          remainAmount = kwargs['remainAmount']
+                          remainAmount = kwargs['remainAmount'],
+                          platform_id = kwargs['platform_id'],
                           )
         if not session.query(Product).filter(Product.id == kwargs['id']).first():
 
@@ -302,6 +318,11 @@ class Rong360():
                         basicInfo['name'] = name
                         basicInfo['gradeFromThird'] = gradeFromThird
                         basicInfo['profitAverage'] = profitAverage
+                        abstract = self.parseDetailAbstract(detailContent)
+                        if abstract:
+                            basicInfo['abstract'] = abstract['abstract']
+                        else:
+                            basicInfo['abstract'] = u'暂无数据'
                         # 保存基本信息至数据库
                         self.saveBasicInfoToSQLite(**basicInfo)
                         # 解析人员信息
@@ -330,8 +351,8 @@ class Rong360():
 
                 else:
                     print '获取详情页面%s失败' % link
-            else:
-                print '获取页面%s产品列表失败' % url
+        else:
+            print '获取页面%s产品列表失败' % url
 
 if __name__ == '__main__':
     pass
